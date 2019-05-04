@@ -1,14 +1,21 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "chess.h"
+#include <QObject>
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QPainter>
+#include <QGraphicsEllipseItem>
+#include <QLine>
+#include <QRectF>
+#include <QGraphicsSimpleTextItem>
 #include <QBrush>
 #include <QPen>
 #include <QVector>
-#include <QLine>
+#include <QPushButton>
+#include <QMouseEvent>
+#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
 
@@ -24,11 +31,23 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+public slots:
+    void ngclicked();
+    void editclicked();
 private:
-    Ui::MainWindow *ui;
     QGraphicsScene *board;
+    double px = 25.0;
+    double rx = px/10;
+    double rc = rx*5;
+    Ui::MainWindow *ui;
     void setboard();
+    void setpiece();
+    void newgame();
+    void test();
+    chess *p, *p2;
+    QVector<chess*>piece;
+    QPushButton *ng,*edit;
+    QGraphicsView *my_view;
 };
 
 #endif // MAINWINDOW_H

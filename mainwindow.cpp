@@ -17,35 +17,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ng,SIGNAL(clicked()), this, SLOT(ngclicked()));
     connect(edit, SIGNAL(clicked()), this, SLOT(editclicked()));
     setboard();
+	chess::setboard(board,ui->view);
     ui->view->setScene(board);
     //my_view = new QGraphicsView(board);
     //my_view->setScene(board);
     //my_view->show();
 }
+
 void QWidget::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
 {
-    qDebug() <<"mainwindow" << mouseEvent->pos();
+    qDebug() <<"Widget " << mouseEvent->pos();
 }
 
-
-void MainWindow::test()
+void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    QPen pen;
-    pen.setColor(Qt::red);
-    pen.setStyle(Qt::SolidLine);
-    pen.setWidth(1);
-    QBrush brush;
-    brush.setColor(Qt::white);
-    brush.setStyle(Qt::SolidPattern);
-    QRectF rec(5*px-rc,1*px-rc,2*rc,2*rc);
-    QGraphicsEllipseItem *circle = new QGraphicsEllipseItem(rec);
-    circle->setBrush(brush);
-    QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem("帥",circle);
-    circle->setPen(pen);
-    text->setPen(pen);
-    text->setPos(5*px-rc/2,1*px-15*rc/16);
-    board->addItem(circle);
-    ui->view->setScene(board);
+    qDebug() <<"Scene " << event->pos();
+}
+
+void MainWindow::test(QVector<int> &ti)
+{
+    ti[0] = 3;
+    ti[1] = 2;
+    ti[2] = 1;
+    qDebug()<<ti <<"in func";
 }
 
 void MainWindow::setboard()
@@ -117,9 +111,10 @@ void MainWindow::newgame()
         if(i == 15)
             my_color = Qt::black;
     }
+    ui->view->show();
 }
 
-    /*
+/*
     帥0   (將)16
     仕1 2 (士)17 18
     相3 4 (象)19 20
@@ -127,7 +122,7 @@ void MainWindow::newgame()
     傌7 8 (馬)23 24
     炮9 10(砲)25 26
     兵11 15 (卒)27 31
-    */
+*/
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -135,16 +130,36 @@ MainWindow::~MainWindow()
 
 void MainWindow::ngclicked()
 {
-   newgame();
-   delete ng;
-   delete edit;
-   chess::setrecord(piece);
+    newgame();
+    delete ng;
+    delete edit;
+    chess::setrecord(piece);
 }
-
 void MainWindow::editclicked()
 {
-   delete edit;
-   delete ng;
-
-
+    using namespace std;
+    //using namespace std;
+    delete edit;
+    delete ng;
+    int x,y;
+    int i = 0;
+    ifstream fin("setpiece.txt",ios::in);
+    if(fin) qDebug() << "opened";
+    char tch[4];
+    QColor my_color(Qt::red);
+    while(fin>>tch>>x>>y)
+    {
+        bool status = true;
+        if(x == 0 && y == 0) status = false;
+        chess*p = new chess(x,y,tch,my_color,status);
+        piece.push_back(p);
+        board->addItem(piece.at(i));
+        if(i == 15)
+            my_color = Qt::black;
+        i++;
+    }
+    fin.close();
+    qDebug() << i;
+    chess::setrecord(piece);
 }
+

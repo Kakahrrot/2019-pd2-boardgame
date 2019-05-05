@@ -16,7 +16,10 @@
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QGraphicsSceneMouseEvent>
+#include <QFile>
 #include <QDebug>
+#include <QTextStream>
+#include <fstream>
 
 
 
@@ -43,7 +46,7 @@ private:
     void setboard();
     void setpiece();
     void newgame();
-    void test();
+    void test(QVector<int>&);
     chess *p, *p2;
     QVector<chess*>piece;
     QPushButton *ng,*edit;

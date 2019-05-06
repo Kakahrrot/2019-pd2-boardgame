@@ -4,7 +4,7 @@
 #define blacknum 2
 #define blackdir 1
 #define reddir -1 
-double chess::px = 25;
+double chess::px = 25.0;
 double chess::rx = px/10;
 double chess::rc = rx*5;
 short chess::position[10][11] = {{0}};
@@ -15,7 +15,7 @@ bool chess::flag = false;
 QVector<chess*> chess::piece;
 QVector<chess*> chess::temp;
 
-void chess::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
+void chess::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {	
 	int i;
 	static chess* ptr = nullptr;
@@ -43,9 +43,10 @@ void chess::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 	}
 	else
 	{
+		bool stop = false;
 		if(ptr != this && this->my_color == specialcolor)
 		{
-			battle();
+			stop = battle();
 			position[ptr->x][ptr->y] = 0;
 			ptr->changePos(this->x, this->y);
 			ptr->my_color == Qt::red ? position[this->x][this->y] = rednum:position[this->x][this->y] = blacknum;
@@ -57,6 +58,8 @@ void chess::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 		 	temp.removeFirst();
 		}
 		flag = false;
+		if(stop)
+			gameover(ptr->my_color);
 		ptr = nullptr;
 	}
 }
@@ -130,56 +133,289 @@ void chess::move1()
 		}
 }
 
-void chess::move2()
+void chess::move2(int mode)
 {
 	qDebug() << "move2 called";
-
+	int move = 1;
+	int lb = 6;
+	int rb = 4;
+	int ub = 3;
+	int db = 1;
+	int me = blacknum;
+	int dir = blackdir;
+	bool unstucked;
+	chess*p;
+	if(mode == 3)
+	{
+	 	move = 2;
+		lb = 9;
+		rb = 1;
+		ub = 5;
+	}
+	if(my_color == Qt::red)
+	{
+	 	me = rednum;
+		dir = reddir;
+	}
+	unstucked = true;
+	if(mode == 3 && position[x + dir][y + dir] != 0)
+		unstucked = false;
+	if(lx + move <= lb && ly + move <= ub && position[x + move*dir][y + move*dir] != me  && unstucked)
+	{
+		p = new chess(x + move*dir, y + move*dir, ch, specialcolor);
+		temp.append(p);
+	}
+	unstucked = true;
+	if(mode == 3 && position[x - dir][y + dir] != 0)
+		unstucked = false;
+	if(lx - move >= rb && ly + move <= ub && position[x - move*dir][y + move*dir] != me && unstucked)
+	{
+		p = new chess(x - move*dir, y + move*dir, ch, specialcolor);
+		temp.append(p);
+	}
+	unstucked = true;
+	if(mode == 3 && position[x + dir][y - dir] != 0)
+		unstucked = false;
+	if(lx + move <= lb && ly - move >= db && position[x + move*dir][y - move*dir] != me && unstucked)
+	{
+		p = new chess(x + move*dir, y - move*dir, ch, specialcolor);
+		temp.append(p);
+	}
+	unstucked = true;
+	if(mode == 3 && position[x - dir][y - dir] != 0)
+		unstucked = false;
+	if(lx - move >= rb && ly - move >= db && position[x - move*dir][y - move*dir] != me && unstucked)
+	{
+		p = new chess(x - move*dir, y - move*dir, ch, specialcolor);
+		temp.append(p);
+	}
 }
+
 void chess::move3()
 {
 	qDebug() << "move3 called";
-
+	move2(3);
 }
-void chess::move4()
+
+void chess::move4(int mode)
 {
 	qDebug() << "move4 called";
-
+	chess*p;
+	int enemy = rednum;
+	int i,j;
+	if(my_color == Qt::red)
+		enemy = blacknum;
+	for(i = x - 1; i >= 1 && position[i][y] == 0; i--)
+	{
+	 	p = new chess(i,y,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 4 && position[i][y] == enemy)
+	{
+	 	p = new chess(i,y,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 6 && position[i][y] != 0)
+	{
+		i--;
+		for(;i >= 1 && position[i][y] == 0; i--);
+		if(position[i][y] == enemy)
+		{
+	 		p = new chess(i,y,ch,specialcolor);
+			temp.append(p);
+		}
+	}
+	for(i = x + 1; i <= 9 && position[i][y] == 0; i++)
+	{
+	 	p = new chess(i,y,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 4 && position[i][y] == enemy)
+	{
+	 	p = new chess(i,y,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 6 && position[i][y] != 0)
+	{
+		i++;
+		for(;i <= 9 && position[i][y] == 0; i++);
+		if(position[i][y] == enemy)
+		{
+	 		p = new chess(i,y,ch,specialcolor);
+			temp.append(p);
+		}
+	}
+	for(j = y - 1; j >= 1 && position[x][j] == 0; j--)
+	{
+	 	p = new chess(x,j,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 4 && position[x][j] == enemy)
+	{
+	 	p = new chess(x,j,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 6 && position[x][j] != 0)
+	{
+		j--;
+		for(;j >= 1 && position[x][j] == 0; j--);
+		if(position[x][j] == enemy)
+		{
+	 		p = new chess(x,j,ch,specialcolor);
+			temp.append(p);
+		}
+	}
+	for(j = y + 1; j <= 9 && position[x][j] == 0; j++)
+	{
+	 	p = new chess(x,j,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 4 && position[x][j] == enemy)
+	{
+	 	p = new chess(x,j,ch,specialcolor);
+		temp.append(p);
+	}
+	if(mode == 6 && position[x][j] != 0)
+	{
+		j++;
+		for(;j <= 10 && position[x][j] == 0; j++);
+		if(position[x][j] == enemy)
+		{
+	 		p = new chess(x,j,ch,specialcolor);
+			temp.append(p);
+		}
+	}
 }
+
 void chess::move5()
 {
 	qDebug() << "move5 called";
-
+	chess*p;
+	int me = rednum;
+	if(my_color == Qt::black)
+		me = blacknum;
+	if(y + 1 <= 9 && position[x][y + 1] == 0)
+	{
+	 	if(x - 1 >= 1 && position[x - 1][y + 2] != me)
+		{
+		 	p = new chess(x - 1, y + 2,ch, specialcolor);
+			temp.append(p);
+		}
+	 	if(x + 1 <= 9 && position[x + 1][y + 2] != me)
+		{
+		 	p = new chess(x + 1, y + 2,ch, specialcolor);
+			temp.append(p);
+		}
+	}
+	if( y - 1 >= 2 && position[x][y - 1] == 0)
+	{
+	 	if(x - 1 >= 1 && position[x - 1][y - 2] != me)
+		{
+		 	p = new chess(x - 1, y - 2,ch, specialcolor);
+			temp.append(p);
+		}
+	 	if(x + 1 <= 9 && position[x + 1][y - 2] != me)
+		{
+		 	p = new chess(x + 1, y - 2,ch, specialcolor);
+			temp.append(p);
+		}
+	}
+	if(x + 1 <= 8 && position[x + 1][y] == 0)
+	{
+	 	if(y + 1 <= 10 && position[x + 2][y + 1] != me)
+		{
+		 	p = new chess(x + 2, y + 1,ch, specialcolor);
+			temp.append(p);
+		}
+	 	if(y - 1 >= 1 && position[x + 2][y - 1] != me)
+		{
+		 	p = new chess(x + 2, y - 1,ch, specialcolor);
+			temp.append(p);
+		}
+	}
+	if(x - 1 >= 2 && position[x - 1][y] == 0)
+	{
+	 	if(y + 1 <= 10 && position[x - 2][y + 1] != me)
+		{
+		 	p = new chess(x - 2, y + 1,ch, specialcolor);
+			temp.append(p);
+		}
+	 	if(y - 1 >= 1 && position[x - 2][y - 1] != me)
+		{
+		 	p = new chess(x - 2, y - 1,ch, specialcolor);
+			temp.append(p);
+		}
+	}
 }
+
 void chess::move6()
 {
 	qDebug() << "move6 called";
-
+	move4(6);
 }
 void chess::move7()
 {
 	qDebug() << "move7 called";
-
+	chess*p;
+	int me = blacknum;
+	int dir = blackdir;
+	if(my_color == Qt::red)
+	{
+		me = rednum;
+		dir = reddir;
+	}
+	if(ly + 1 <= 10 && position[x][y + dir] != me)
+	{
+		p = new chess(x, y + dir, ch, specialcolor);
+		temp.append(p);
+	}
+	if(ly > 5 && lx + 1 <= 9 && position[x + dir][y] != me)
+	{
+		p = new chess(x + dir, y, ch, specialcolor);
+		temp.append(p);
+	}
+	if(ly > 5 && lx - 1 >= 1 && position[x - dir][y] != me)
+	{
+		p = new chess(x - dir, y, ch, specialcolor);
+		temp.append(p);
+	}
 }
 
-void chess::battle()
+
+bool chess::battle()
 {
  	int i;
+	bool b = false;
 	for(i = 0; i < piece.size();i++)
 		if(this->x == piece.at(i)->x && this->y == piece.at(i)->y)
 		{
 			qDebug() << piece.at(i)->ch;
 			piece.at(i)->changePos(0,0);
 			update(*piece.at(i)->rect);
-			//piece[i]->status = false;
+			piece[i]->status = false;
+			b = true;
+			break;
 			//piece[i]->hide();
-			if(piece.at(i)->ch == "帥" || piece.at(i)->ch ==  "將")
-				gameover(piece.at(i)->my_color);//lose color
 		}
+	if( b && (piece.at(i)->ch == "帥" || piece.at(i)->ch ==  "將"))
+		return true;
+	return false;
 }
 
 void chess::gameover(QColor color)
 {
- 	qDebug() << color << "lose";
+	if(color == Qt::red)
+ 		qDebug() << "red win";
+	else
+		qDebug() << "black win";
+	emit piece.at(0)->test(1);
+	/*
+	while(!piece.isEmpty())
+	{
+	 	delete piece[0];
+		piece.removeFirst();
+	}
+	*/
 }
 
 void chess::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

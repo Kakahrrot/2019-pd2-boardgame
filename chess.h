@@ -25,7 +25,7 @@ public:
     void changePos(int x, int y);
 	static void setboard(QGraphicsScene* board,QGraphicsView* view);
     static void setrecord(const QVector<chess*>& p);
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void paint(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget );
     QRectF boundingRect()const;
 signals:
@@ -43,13 +43,13 @@ private:
     static short position[10][11];
 	static QVector<chess*> piece;
 	void move1();
-	void move2();
+	void move2(int mode= 2);
 	void move3();
-	void move4();
+	void move4(int mode = 4);
 	void move5();
 	void move6();
 	void move7();
-	void battle();
+	bool battle();
 	static bool flag;
 	void switch_local_coordinate(void);
 	static QVector<chess*> temp;

@@ -9,16 +9,13 @@
 #include <QGraphicsEllipseItem>
 #include <QLine>
 #include <QRectF>
-#include <QGraphicsSimpleTextItem>
 #include <QBrush>
 #include <QPen>
 #include <QVector>
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QGraphicsSceneMouseEvent>
-#include <QFile>
 #include <QDebug>
-#include <QTextStream>
 #include <fstream>
 
 
@@ -37,6 +34,7 @@ public:
 public slots:
     void ngclicked();
     void editclicked();
+	void stop(int n);
 private:
     QGraphicsScene *board;
     double px = 25.0;

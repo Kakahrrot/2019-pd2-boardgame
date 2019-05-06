@@ -105,13 +105,14 @@ void MainWindow::newgame()
     QColor my_color(Qt::red);
     for(int i = 0; i < 32; i++)
     {
-        chess* p = new chess(x[i],y[i],ch[i],my_color);
+        chess* p = new chess(x[i],y[i],ch[i],my_color,true);
         piece.push_back(p);
         board->addItem(piece.at(i));
         if(i == 15)
             my_color = Qt::black;
     }
-    ui->view->show();
+	connect(piece.at(15), SIGNAL(test(int)), this, SLOT(stop(int)));
+	connect(piece.at(0), SIGNAL(test(int)), this, SLOT(stop(int)));
 }
 
 /*
@@ -161,5 +162,17 @@ void MainWindow::editclicked()
     fin.close();
     qDebug() << i;
     chess::setrecord(piece);
+	connect(piece.at(0), SIGNAL(test(int)), this, SLOT(stop(int)));
+	connect(piece.at(15), SIGNAL(test(int)), this, SLOT(stop(int)));
 }
 
+void MainWindow::stop(int n)
+{
+ 	qDebug() << "mainwindow " << n;
+	while(!piece.isEmpty())
+	{
+	 	delete piece[0];
+		piece.removeFirst();
+	}
+
+}

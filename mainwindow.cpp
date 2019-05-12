@@ -10,16 +10,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->view->scale(3,3);
     ui->view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     ui->view->centerOn(5*px,5.5*px);
-    ng = new QPushButton("new game",this);
-    ng->setGeometry(10*px,10*px,px*2,px*2);
-    edit = new QPushButton("edit", this);
-    edit->setGeometry(100,200,100,100);
-    connect(ng,SIGNAL(clicked()), this, SLOT(ngclicked()));
-    connect(edit, SIGNAL(clicked()), this, SLOT(editclicked()));
     setboard();
-	chess::setboard(board,ui->view);
     ui->view->setScene(board);
-    //my_view = new QGraphicsView(board);
+	chess::setboard(board,ui->view);
+	launch();
+/*    testbt = new QPushButton("close", this);
+    testbt->setGeometry(200,100,100,100);
+	qDebug() << connect(testbt, SIGNAL(clicked()), this, SLOT(testbtclicked()));
+	qDebug() << "close btn newed";
+  */
+  	//my_view = new QGraphicsView(board);
     //my_view->setScene(board);
     //my_view->show();
 }
@@ -34,12 +34,20 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     qDebug() <<"Scene " << event->pos();
 }
 
-void MainWindow::test(QVector<int> &ti)
+void MainWindow::launch()
 {
-    ti[0] = 3;
-    ti[1] = 2;
-    ti[2] = 1;
-    qDebug()<<ti <<"in func";
+	qDebug() << "launch called";
+    ng = new QPushButton("new game",this);
+    edit = new QPushButton("edit", this);
+    ng->setGeometry(100,100,100,100);
+    edit->setGeometry(100,200,100,100);
+    qDebug() << connect(ng,SIGNAL(clicked()), this, SLOT(ngclicked()));
+    qDebug() << connect(edit, SIGNAL(clicked()), this, SLOT(editclicked()));
+	qDebug() << "bt newed";
+	qDebug() << this;
+	qDebug() << ng;
+	qDebug() << edit;
+
 }
 
 void MainWindow::setboard()
@@ -111,8 +119,8 @@ void MainWindow::newgame()
         if(i == 15)
             my_color = Qt::black;
     }
-	connect(piece.at(15), SIGNAL(test(int)), this, SLOT(stop(int)));
-	connect(piece.at(0), SIGNAL(test(int)), this, SLOT(stop(int)));
+    //connect(piece.at(0), SIGNAL(gameover()), this, SLOT(stop()));
+    connect(piece.at(0), SIGNAL(gameover(int)), this, SLOT(showresult(int)));
 }
 
 /*
@@ -124,6 +132,7 @@ void MainWindow::newgame()
     炮9 10(砲)25 26
     兵11 15 (卒)27 31
 */
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -134,18 +143,23 @@ void MainWindow::ngclicked()
     newgame();
     delete ng;
     delete edit;
+	if(closebt != nullptr)
+		delete closebt;
     chess::setrecord(piece);
 }
+
 void MainWindow::editclicked()
 {
+	qDebug() << "editclicked";
     using namespace std;
-    //using namespace std;
     delete edit;
     delete ng;
+	if(closebt != nullptr)
+		delete closebt;
     int x,y;
     int i = 0;
     ifstream fin("setpiece.txt",ios::in);
-    if(fin) qDebug() << "opened";
+	if(fin) qDebug() << "file opened";
     char tch[4];
     QColor my_color(Qt::red);
     while(fin>>tch>>x>>y)
@@ -162,17 +176,42 @@ void MainWindow::editclicked()
     fin.close();
     qDebug() << i;
     chess::setrecord(piece);
-	connect(piece.at(0), SIGNAL(test(int)), this, SLOT(stop(int)));
-	connect(piece.at(15), SIGNAL(test(int)), this, SLOT(stop(int)));
+	connect(piece.at(0), SIGNAL(gameover(int)), this, SLOT(showresult(int)));
 }
 
-void MainWindow::stop(int n)
+void MainWindow::testbtclicked()
 {
- 	qDebug() << "mainwindow " << n;
+	delete testbt;
+ 	qDebug() << "testbtclicked & deleted";
+	//launch();
+	close();
+}
+
+void MainWindow::stop()
+{
 	while(!piece.isEmpty())
 	{
 	 	delete piece[0];
 		piece.removeFirst();
 	}
+    closebt = new QPushButton("close", this);
+    closebt->setGeometry(200,200,100,100);
+	closebt->show();
+	connect(closebt, SIGNAL(clicked()), this, SLOT(testbtclicked()));
+	launch();
+	ng->show();
+	edit->show();
+	
+}
+void MainWindow::showresult(int i)
+{
 
+    if(i == 1)
+    {
+        qDebug() << "result: red win";
+    }
+    else {
+        qDebug() << "result: black win";
+    }
+    stop();
 }

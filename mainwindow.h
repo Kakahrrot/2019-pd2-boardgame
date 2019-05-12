@@ -17,6 +17,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <fstream>
+#include <QLabel>
 
 
 
@@ -27,14 +28,16 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
 public slots:
     void ngclicked();
     void editclicked();
-	void stop(int n);
+    void stop();
+	void testbtclicked();
+	void showresult(int);
 private:
     QGraphicsScene *board;
     double px = 25.0;
@@ -44,10 +47,9 @@ private:
     void setboard();
     void setpiece();
     void newgame();
-    void test(QVector<int>&);
-    chess *p, *p2;
+	void launch();
     QVector<chess*>piece;
-    QPushButton *ng,*edit;
+    QPushButton *ng,*edit,*testbt, *closebt;
     QGraphicsView *my_view;
 };
 

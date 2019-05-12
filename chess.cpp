@@ -405,10 +405,15 @@ bool chess::battle()
 void chess::gameover(QColor color)
 {
 	if(color == Qt::red)
+	{
  		qDebug() << "red win";
+        emit piece.at(0)->gameover(rednum);
+	}
 	else
+	{
 		qDebug() << "black win";
-	emit piece.at(0)->test(1);
+        emit piece.at(0)->gameover(blacknum);
+	}
 	/*
 	while(!piece.isEmpty())
 	{
@@ -462,6 +467,11 @@ void chess::changePos(int newx, int newy)
 
 void chess::setrecord(const QVector<chess *>& p)
 {
+	while(!piece.isEmpty())
+	 	piece.removeFirst();
+	for(int i = 0; i < 10;i++)
+		for(int j = 0; j < 11; j++)
+			position[i][j] = 0;
 	for(int i = 0; i < p.size(); i++)
 	{
 		piece.push_back(p.at(i));

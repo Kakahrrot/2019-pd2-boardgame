@@ -29,7 +29,7 @@ public:
     void paint(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget );
     QRectF boundingRect()const;
 signals:
-   void test(int i);
+   void gameover(int i);
 private:
     int x, y, lx, ly;
     QString ch;
